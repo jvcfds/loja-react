@@ -25,7 +25,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 }) => {
   const stars = Math.max(0, Math.min(5, rating ?? 0));
 
-  // Link wrapper opcional
   const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     href ? (
       <a
@@ -38,7 +37,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       <>{children}</>
     );
 
-  // Conteúdo interno do card
   const Content = () => (
     <div className="p-4 space-y-2 flex flex-col justify-between">
       <Wrapper>
@@ -90,7 +88,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         ${variant === "horizontal" ? "flex h-40" : "max-w-sm"}
         ${variant === "compact" ? "max-w-xs text-sm" : ""}`}
     >
-      {/* Imagem */}
       <div className={`relative ${variant === "horizontal" ? "w-40" : ""}`}>
         <img
           src={image}
@@ -106,7 +103,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         )}
       </div>
 
-      {/* Conteúdo */}
       <Content />
     </div>
   );

@@ -44,7 +44,7 @@ export default function App() {
     });
   };
 
-  // Remover do carrinho
+  // Remover do carrinho ✅ corrigido
   const removeFromCart = (name: string) => {
     setCart((prev) => prev.filter((p) => p.name !== name));
   };
@@ -108,7 +108,7 @@ export default function App() {
           <ProductCard
             name="Mochila de Couro"
             price={199.5}
-            image="https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?q=80&w=800&auto=format&fit=crop"
+            image="https://images.unsplash.com/photo-1600185365483-26d7a4f6d4f4?q=80&w=800&auto=format&fit=crop"
             badge="-20%"
             variant="compact"
             onAddToCart={() =>
@@ -116,7 +116,7 @@ export default function App() {
                 name: "Mochila de Couro",
                 price: 199.5,
                 image:
-                  "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?q=80&w=800&auto=format&fit=crop",
+                  "https://images.unsplash.com/photo-1600185365483-26d7a4f6d4f4?q=80&w=800&auto=format&fit=crop",
               })
             }
           />
