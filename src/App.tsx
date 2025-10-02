@@ -12,26 +12,21 @@ export default function App() {
   const [dark, setDark] = useState(false);
   const [cart, setCart] = useState<CartItem[]>([]);
 
-  // Carregar preferências do localStorage
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
     const savedCart = localStorage.getItem("cart");
-
     if (savedTheme === "dark") setDark(true);
     if (savedCart) setCart(JSON.parse(savedCart));
   }, []);
 
-  // Salvar tema
   useEffect(() => {
     localStorage.setItem("theme", dark ? "dark" : "light");
   }, [dark]);
 
-  // Salvar carrinho
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
 
-  // Adicionar ao carrinho
   const addToCart = (item: Omit<CartItem, "qty">) => {
     setCart((prev) => {
       const exists = prev.find((p) => p.name === item.name);
@@ -44,12 +39,10 @@ export default function App() {
     });
   };
 
-  // Remover do carrinho ✅ corrigido
   const removeFromCart = (name: string) => {
     setCart((prev) => prev.filter((p) => p.name !== name));
   };
 
-  // Total formatado em R$
   const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
   const formatPrice = (value: number) =>
     new Intl.NumberFormat("pt-BR", {
@@ -68,15 +61,16 @@ export default function App() {
           Alternar para {dark ? "☀️ Claro" : "🌙 Escuro"}
         </button>
 
-        {/* Catálogo */}
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
           🛍️ Catálogo de Produtos
         </h1>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-5xl">
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl">
+          {/* Produto 1 */}
           <ProductCard
-            name="Tênis Esportivo"
+            name="Tênis Nike"
             price={299.9}
-            image="https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=800&auto=format&fit=crop"
+            image="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=800&q=80"
             badge="Novo"
             rating={4.7}
             onAddToCart={() =>
@@ -84,56 +78,90 @@ export default function App() {
                 name: "Tênis Esportivo",
                 price: 299.9,
                 image:
-                  "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=800&auto=format&fit=crop",
+                  "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=800&q=80",
               })
             }
           />
 
+          {/* Produto 2 */}
           <ProductCard
             name="Relógio Smart"
             price={499.0}
-            image="https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=800&auto=format&fit=crop"
+            image="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80"
             rating={4.2}
-            variant="horizontal"
             onAddToCart={() =>
               addToCart({
                 name: "Relógio Smart",
                 price: 499.0,
                 image:
-                  "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=800&auto=format&fit=crop",
+                  "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80",
               })
             }
           />
 
+          {/* Produto 3 */}
           <ProductCard
-            name="Mochila de Couro"
-            price={199.5}
-            image="https://images.unsplash.com/photo-1600185365483-26d7a4f6d4f4?q=80&w=800&auto=format&fit=crop"
-            badge="-20%"
-            variant="compact"
+            name="Bolsa Louis Vuitton"
+            price={8500}
+            image="https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=800&q=80"
+            badge="Luxo"
             onAddToCart={() =>
               addToCart({
-                name: "Mochila de Couro",
-                price: 199.5,
+                name: "Bolsa Louis Vuitton",
+                price: 8500,
                 image:
-                  "https://images.unsplash.com/photo-1600185365483-26d7a4f6d4f4?q=80&w=800&auto=format&fit=crop",
+                  "https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=800&q=80",
               })
             }
           />
 
-          {/* Tubarão Branco 🦈 */}
+          {/* Produto 4 - Shark */}
           <ProductCard
             name="Tubarão Branco"
             price={500000}
-            image="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800&auto=format&fit=crop"
+            image="https://static.todamateria.com.br/upload/tu/ba/tubaraobranco-cke.jpg"
+            badge="Exclusivo"
+            rating={4.8}
+            onAddToCart={() =>
+              addToCart({
+                name: "Tubarão Branco",
+                price: 500.000,
+                image:
+                  "https://static.todamateria.com.br/upload/tu/ba/tubaraobranco-cke.jpg",
+              })
+            }
+          />
+
+          {/* Produto 5 */}
+          <ProductCard
+            name="Ferrari Esportiva"
+            price={3500000}
+            image="https://images.unsplash.com/photo-1503736334956-4c8f8e92946d?auto=format&fit=crop&w=800&q=80"
             badge="Exclusivo"
             rating={5}
             onAddToCart={() =>
               addToCart({
-                name: "Tubarão Branco",
-                price: 500000,
+                name: "Ferrari Esportiva",
+                price: 3500000,
                 image:
-                  "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800&auto=format&fit=crop",
+                  "https://images.unsplash.com/photo-1503736334956-4c8f8e92946d?auto=format&fit=crop&w=800&q=80",
+              })
+            }
+          />
+
+          {/* Produto 6 - Prada */}
+          <ProductCard
+            name="Bolsa Prada"
+            price={21000}
+            image="https://images.unsplash.com/photo-1727691038583-bd59f477bb4f?q=80&w=1588&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+            badge="Colecionador"
+            rating={5}
+            onAddToCart={() =>
+              addToCart({
+                name: "Bolsa Prada",
+                price: 21000,
+                image:
+                  "https://images.unsplash.com/photo-1727691038583-bd59f477bb4f?q=80&w=1588&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
               })
             }
           />
@@ -180,7 +208,6 @@ export default function App() {
               ))}
             </ul>
           )}
-
           <div className="flex justify-between items-center mt-4">
             <span className="font-semibold text-gray-900 dark:text-gray-100">
               Total:
