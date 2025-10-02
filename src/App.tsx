@@ -1,125 +1,195 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { ProductCard } from "./components/ProductCard";
 
-type FormData = {
+type CartItem = {
   name: string;
-  email: string;
-  message: string;
+  price: number;
+  image: string;
+  qty: number;
 };
 
-type Errors = Partial<Record<keyof FormData, string>>;
-
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
-
 export default function App() {
-  const [data, setData] = useState<FormData>({
-    name: "",
-    email: "",
-    message: "",
-  });
-  const [errors, setErrors] = useState<Errors>({});
-  const [submitted, setSubmitted] = useState(false);
+  const [dark, setDark] = useState(false);
+  const [cart, setCart] = useState<CartItem[]>([]);
 
-  const validate = (values: FormData) => {
-    const e: Errors = {};
-    if (!values.name.trim()) e.name = "Informe seu nome.";
-    if (!values.email.trim()) e.email = "Informe seu e-mail.";
-    else if (!emailRegex.test(values.email)) e.email = "E-mail inválido.";
-    if (!values.message.trim()) e.message = "Escreva sua mensagem.";
-    else if (values.message.length < 10) e.message = "Use ao menos 10 caracteres.";
-    return e;
+  // Carregar preferências do localStorage
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme");
+    const savedCart = localStorage.getItem("cart");
+
+    if (savedTheme === "dark") setDark(true);
+    if (savedCart) setCart(JSON.parse(savedCart));
+  }, []);
+
+  // Salvar tema
+  useEffect(() => {
+    localStorage.setItem("theme", dark ? "dark" : "light");
+  }, [dark]);
+
+  // Salvar carrinho
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(cart));
+  }, [cart]);
+
+  // Adicionar ao carrinho
+  const addToCart = (item: Omit<CartItem, "qty">) => {
+    setCart((prev) => {
+      const exists = prev.find((p) => p.name === item.name);
+      if (exists) {
+        return prev.map((p) =>
+          p.name === item.name ? { ...p, qty: p.qty + 1 } : p
+        );
+      }
+      return [...prev, { ...item, qty: 1 }];
+    });
   };
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setData((prev) => ({ ...prev, [name]: value }));
+  // Remover do carrinho
+  const removeFromCart = (name: string) => {
+    setCart((prev) => prev.filter((p) => p.name !== name));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const eVal = validate(data);
-    setErrors(eVal);
-    if (Object.keys(eVal).length === 0) {
-      setSubmitted(true);
-      setData({ name: "", email: "", message: "" });
-    }
-  };
+  // Total formatado em R$
+  const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+  const formatPrice = (value: number) =>
+    new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    }).format(value);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-      <div className="bg-white shadow-lg rounded-xl w-full max-w-md p-6">
-        <h1 className="text-2xl font-bold text-center mb-4">✉️ Formulário de Contato</h1>
+    <div className={dark ? "dark" : ""}>
+      <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-6 flex flex-col items-center gap-8 transition">
+        {/* Botão de tema */}
+        <button
+          onClick={() => setDark(!dark)}
+          className="px-4 py-2 rounded-lg bg-gray-800 text-white dark:bg-gray-200 dark:text-gray-900 transition"
+        >
+          Alternar para {dark ? "☀️ Claro" : "🌙 Escuro"}
+        </button>
 
-        {submitted && (
-          <div className="mb-4 p-3 rounded-lg bg-green-100 text-green-800 border border-green-200">
-            Mensagem enviada com sucesso! ✅
+        {/* Catálogo */}
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+          🛍️ Catálogo de Produtos
+        </h1>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-5xl">
+          <ProductCard
+            name="Tênis Esportivo"
+            price={299.9}
+            image="https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=800&auto=format&fit=crop"
+            badge="Novo"
+            rating={4.7}
+            onAddToCart={() =>
+              addToCart({
+                name: "Tênis Esportivo",
+                price: 299.9,
+                image:
+                  "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=800&auto=format&fit=crop",
+              })
+            }
+          />
+
+          <ProductCard
+            name="Relógio Smart"
+            price={499.0}
+            image="https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=800&auto=format&fit=crop"
+            rating={4.2}
+            variant="horizontal"
+            onAddToCart={() =>
+              addToCart({
+                name: "Relógio Smart",
+                price: 499.0,
+                image:
+                  "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=800&auto=format&fit=crop",
+              })
+            }
+          />
+
+          <ProductCard
+            name="Mochila de Couro"
+            price={199.5}
+            image="https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?q=80&w=800&auto=format&fit=crop"
+            badge="-20%"
+            variant="compact"
+            onAddToCart={() =>
+              addToCart({
+                name: "Mochila de Couro",
+                price: 199.5,
+                image:
+                  "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?q=80&w=800&auto=format&fit=crop",
+              })
+            }
+          />
+
+          {/* Tubarão Branco 🦈 */}
+          <ProductCard
+            name="Tubarão Branco"
+            price={500000}
+            image="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800&auto=format&fit=crop"
+            badge="Exclusivo"
+            rating={5}
+            onAddToCart={() =>
+              addToCart({
+                name: "Tubarão Branco",
+                price: 500000,
+                image:
+                  "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800&auto=format&fit=crop",
+              })
+            }
+          />
+        </div>
+
+        {/* Carrinho */}
+        <div className="w-full max-w-3xl mt-8 rounded-lg bg-white dark:bg-gray-800 shadow p-6">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+            🛒 Carrinho
+          </h2>
+          {cart.length === 0 ? (
+            <p className="text-gray-600 dark:text-gray-300">
+              Seu carrinho está vazio.
+            </p>
+          ) : (
+            <ul className="space-y-3">
+              {cart.map((item) => (
+                <li
+                  key={item.name}
+                  className="flex justify-between items-center border-b border-gray-200 dark:border-gray-700 pb-2"
+                >
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="w-12 h-12 rounded object-cover"
+                    />
+                    <div>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">
+                        {item.name}
+                      </p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {item.qty}x {formatPrice(item.price)}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => removeFromCart(item.name)}
+                    className="text-red-500 hover:text-red-700 text-sm"
+                  >
+                    Remover
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <div className="flex justify-between items-center mt-4">
+            <span className="font-semibold text-gray-900 dark:text-gray-100">
+              Total:
+            </span>
+            <span className="text-lg font-bold text-blue-600">
+              {formatPrice(total)}
+            </span>
           </div>
-        )}
-
-        <form onSubmit={handleSubmit} noValidate>
-          {/* Nome */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-1" htmlFor="name">
-              Nome
-            </label>
-            <input
-              id="name"
-              name="name"
-              value={data.name}
-              onChange={handleChange}
-              className={`w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 ${
-                errors.name ? "border-red-400 focus:ring-red-300" : "border-gray-300 focus:ring-blue-300"
-              }`}
-              placeholder="Seu nome"
-            />
-            {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
-          </div>
-
-          {/* Email */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-1" htmlFor="email">
-              E-mail
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              value={data.email}
-              onChange={handleChange}
-              className={`w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 ${
-                errors.email ? "border-red-400 focus:ring-red-300" : "border-gray-300 focus:ring-blue-300"
-              }`}
-              placeholder="voce@exemplo.com"
-            />
-            {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
-          </div>
-
-          {/* Mensagem */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-1" htmlFor="message">
-              Mensagem
-            </label>
-            <textarea
-              id="message"
-              name="message"
-              value={data.message}
-              onChange={handleChange}
-              className={`w-full border rounded-lg px-3 py-2 h-28 focus:outline-none focus:ring-2 ${
-                errors.message ? "border-red-400 focus:ring-red-300" : "border-gray-300 focus:ring-blue-300"
-              }`}
-              placeholder="Escreva sua mensagem..."
-            />
-            {errors.message && <p className="text-red-500 text-sm mt-1">{errors.message}</p>}
-          </div>
-
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
-          >
-            Enviar
-          </button>
-        </form>
+        </div>
       </div>
     </div>
   );
